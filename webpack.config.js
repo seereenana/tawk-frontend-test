@@ -3,6 +3,7 @@
 const path = require("path");
 const { VueLoaderPlugin } = require("vue-loader");
 const dataObj = require("./data/data.json");
+const autoprefixer = require("autoprefixer");
 
 module.exports = {
   entry: ["./src/app.js"],
@@ -41,6 +42,7 @@ module.exports = {
   devServer: {
     contentBase: path.join(__dirname, "public"),
     port: 9000,
+    historyApiFallback: true,
     before: function (app, server, compiler) {
       app.get("/api/categories", function (req, res) {
         res.json(dataObj.categories);
