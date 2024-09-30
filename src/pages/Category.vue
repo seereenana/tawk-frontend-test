@@ -27,7 +27,7 @@
         </section>
         <section class="articles-grid">
           <div v-if="!filteredArticles.length" class="article-card">
-            <p> No articles found</p>
+            <p class="default-text"> No articles found</p>
           </div>
           <div v-for="item in filteredArticles" :key="item.id">
             <div class="article-card">
@@ -39,7 +39,7 @@
                   <p class="article-date">Updated {{ formatDate(item.updatedOn) }}</p>
                 </div>
               </div>
-              <div class="article-left-icon">
+              <div class="article-right-icon">
                 <i class="fas fa-chevron-right"></i>
               </div>
             </div>
@@ -159,12 +159,17 @@ export default {
   background-color: $background-color;
   padding: 0px 20px;
   min-height: 100vh;
+  width: auto;
   display: flex;
   justify-items: center;
+  justify-content: center;
 }
 
 .container-content {
-  padding: 30px;
+  padding: 20px;
+  justify-items: center;
+  width: auto;
+
 }
 
 .category-header {
@@ -249,6 +254,11 @@ i {
   justify-content: center;
   background-color: white;
 
+  @media (max-width: 768px) {
+    float: none;
+    margin-bottom: 10px;
+  }
+
   p {
     font-family: $font-family;
     margin: 0;
@@ -284,9 +294,21 @@ i {
 .articles-grid {
   height: inherit;
   display: grid;
+  display: -ms-grid;
   grid-auto-columns: 1fr 200px;
   padding-left: 20px;
-  gap: 10px
+  gap: 10px;
+
+  /* IE 10 */
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+  }
+
+  @media (max-width: 768px) {
+    float: none;
+    padding-left: 0;
+
+  }
 }
 
 .article-card {
@@ -301,6 +323,15 @@ i {
   margin: 0;
   justify-content: space-between;
 
+  @media (max-width: 768px) {
+    width: 100%;
+    height: auto;
+    flex-direction: column;
+    padding: 0px;
+    margin: 0;
+  }
+
+
   .article-right-bar {
     display: flex;
 
@@ -309,6 +340,12 @@ i {
   .article-title {
     font-size: 20px;
     margin-bottom: 10px;
+
+    @media (max-width: 768px) {
+      margin-right: 20px;
+      flex-wrap: wrap;
+
+    }
   }
 
   .article-date {
@@ -326,8 +363,20 @@ i {
 
   .article-right-icon {
     float: right;
-    justify-content: flex-end;
+    align-self: center;
+    margin-right: 20px;
+    margin-left: 20px;
 
+    @media (max-width: 768px) {
+      justify-content: center;
+      margin-left: 20px;
+      padding: 20px;
+      align-self: flex-end;
+    }
+  }
+
+  .default-text {
+    padding: 20px;
   }
 }
 </style>

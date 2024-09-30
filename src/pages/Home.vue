@@ -108,6 +108,10 @@ export default {
     width: 720px;
     height: 40px;
 
+    @media (max-width: 768px) {
+      width: 100%; // Full width for mobile screens
+    }
+
     ::placeholder {
       color: $text-gray;
     }
@@ -133,8 +137,43 @@ export default {
 
 .category-grid {
   display: grid;
+  display: -ms-grid;
+  /* IE 10 */
+
   grid-template-columns: repeat(3,
       1fr);
+
+  // Large desktops (e.g., 1600px wide)
+  @media (max-width: 1600px) {
+    grid-template-columns: repeat(3, 1fr); // Four columns for large screens
+  }
+
+  // Standard desktops (e.g., 1200px wide)
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr); // Three columns for desktop
+  }
+
+  // Tablets (e.g., 992px wide)
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(2, 1fr); // Two columns for tablets
+  }
+
+  // Small tablets and large phones (e.g., 768px wide)
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr 1fr; // Two columns for landscape phones
+  }
+
+  // Smaller phones (e.g., 576px wide)
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr; // One column for smaller phones
+  }
+
+  // Extra small devices (e.g., less than 400px)
+  @media (max-width: 400px) {
+    grid-template-columns: 1fr; // One column for small phones
+    gap: 10px; // Smaller gap for very small screens
+  }
+
   gap: 20px;
   justify-items: center;
   margin: 0;
