@@ -1,8 +1,8 @@
 <template>
   <div id="Home">
     <div class="category-header">
-      <input v-model="searchQuery" placeholder="Search for answers" />
-      <button><i class="fas fa-search"></i></button>
+      <input v-model="searchQuery" placeholder="Search for answers" @keyup.enter="searchArticle" />
+      <button @click="searchArticle"><i class="fas fa-search"></i></button>
     </div>
     <div class="container">
       <div class="category-grid">
@@ -48,6 +48,9 @@ export default {
     },
   },
   methods: {
+    searchArticle() {
+      this.$router.push({ name: "Search", query: { article: this.searchQuery } });
+    },
     formatLastUpdated(dateString) {
       const updatedDate = new Date(dateString);
       const today = new Date();

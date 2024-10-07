@@ -1,55 +1,45 @@
 <template>
-  <div id="Category">
-    <section class="category-header">
+  <div id="Search">
+    <div class="category-header">
       <input v-model="searchQuery" placeholder="Search for answers" @keyup.enter="searchArticle" />
       <button @click="searchArticle"><i class="fas fa-search"></i></button>
-    </section>
+    </div>
     <section class="container">
+      <div class="breadcrumb">
+        <p>
+          <a href="/">All categories</a><i class="fas fa-chevron-right"></i>Search Results
+        </p>
+      </div>
       <div class="container-content">
-        <div class="breadcrumb">
-          <p>
-            <a href="/">All categories</a><i class="fas fa-chevron-right"></i>{{ categoryData.title }}
-          </p>
-        </div>
-        <section class="category-card">
-          <div class="category-card-header">
-            <i v-bind:class="iconCategoryClassObject(categoryData.icon)"></i>
-            <p class="title-text">{{ categoryData.title }}</p>
-            <p class="date-text">
-              {{ formatLastUpdated(categoryData.updatedOn) }}
-            </p>
+        <section class="category-grid">
+          <p class="default-text">Showing Result for "{{ searchArticleTitle }}"</p>
+          <div v-if="!filteredArticleTitle.length" class="article-card">
+            <p class="default-text"> No search result</p>
           </div>
-          <hr class="divider" />
-          <div class="category-card-footer">
-            <i class="fas fa-info"></i>
-            <p class="description-text">{{ categoryData.description }}</p>
-          </div>
-        </section>
-        <section class="articles-grid">
-          <div v-if="!filteredArticles.length" class="article-card">
-            <p class="default-text"> No articles found</p>
-          </div>
-          <div v-for="item in filteredArticles" :key="item.id">
-            <div class="article-card">
-              <div class="article-right-bar">
-                <div class="article-left-icon"> <i v-bind:class="iconClassObject(item.icon)"></i>
+          <div>
+
+            <div v-for="item in filteredArticleTitle" :key="item.id">
+              <div class="article-card">
+                <div class="article-right-bar">
+                  <div class="article-left-icon"> <i v-bind:class="iconClassObject(item.icon)"></i>
+                  </div>
+                  <div>
+                    <p class="article-title">{{ item.title }}</p>
+                    <p class="article-description">{{ item.content }}</p>
+                  </div>
+                  <div class="article-right-icon">
+                    <i class="fas fa-chevron-right"></i>
+                  </div>
                 </div>
-                <div>
-                  <p class="article-title">{{ item.title }}</p>
-                  <p class="article-date">Updated {{ formatDate(item.updatedOn) }}</p>
-                </div>
-              </div>
-              <div class="article-right-icon">
-                <i class="fas fa-chevron-right"></i>
               </div>
             </div>
-
           </div>
         </section>
       </div>
     </section>
   </div>
 </template>
+
 
 <script>
 import axios from "axios";
@@ -58,98 +48,43 @@ export default {
   data() {
     return {
       searchQuery: "",
-      articlesList: [],
-      categoriesList: [],
+      articleList: [],
+      filteredArticle: [],
     };
   },
   mounted() {
-    const categoryId = this.$route.params.id;
-    this.fetchArticlesData(categoryId);
-    this.fetchCategoriesData();
+    const articleTitle = this.$route.query.article;
+    if (articleTitle) {
+      this.fetchSearchArticles(articleTitle);
+    }
   },
   computed: {
-    categoryId() {
-      return this.$route.params.id;
+    searchArticleTitle() {
+      return this.$route.query.article;
     },
-    filteredArticles() {
-      if (this.searchQuery.length === 0) {
-        return this.articlesList.filter((article) => article.status == "published");
-      } else {
-        return this.articlesList.filter(
-          (article) =>
-            article.title
-              .toLowerCase()
-              .includes(this.searchQuery.toLowerCase()) && article.status == "published"
-        );
-      }
-
-    },
-    categoryData() {
-      return this.findCategoryById(this.categoryId);
+    filteredArticleTitle() {
+      return this.articleList.filter(
+        (article) =>
+          article.title.toLowerCase().includes(this.searchArticleTitle.toLowerCase())
+      );
     },
   },
   methods: {
     searchArticle() {
       this.$router.push({ name: "Search", query: { article: this.searchQuery } });
     },
-    findCategoryById(id) {
-      return this.categoriesList.find((category) => category.id === id);
-    },
-    formatDate(date) {
-      const options = { year: "numeric", month: "short", day: "2-digit" };
-      return new Intl.DateTimeFormat("en-US", options).format(new Date(date));
-    },
-    formatLastUpdated(dateString) {
-      const updatedDate = new Date(dateString);
-      const today = new Date();
-
-      const diffTime = Math.abs(today - updatedDate);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return `Last update ${diffDays} days ago`;
-    },
-    sortListbyOrder(list) {
-      return list.sort(function (a, b) {
-        return a.order - b.order;
-      });
-    },
-    iconCategoryClassObject(iconName) {
-      return "fas fa-3x fa-" + iconName;
-    },
-    iconClassObject(iconName) {
-      return "fas fa-lg fa-" + iconName;
-    },
-    // fetch categories data again here to display the breadcrumbs title name
-    // note: not perfomance optimize
-    async fetchCategoriesData() {
+    async fetchSearchArticles() {
       try {
-        const response = await axios.get("/api/categories");
+        const response = await axios.get("/api/search/" + this.searchQuery);
         // theres one typo for the icon deskop
-        this.categoriesList = response.data;
-      } catch (error) {
-        this.error = "Failed to fetch categories data";
-        console.error(error);
-      }
-    },
-    // note: should return current category data to display on UI instead of using the /api/categories api
-    //current api return all articles when fetch
-    async fetchArticlesData(categoryId) {
-      try {
-        const response = await axios.get("/api/category/" + categoryId);
-        this.articlesList = response.data;
+        this.articleList = response.data;
       } catch (error) {
         this.error = "Failed to fetch articles data";
         console.error(error);
       }
     },
-    // current view doesnt required the display of authors
-    async fetchAuthorData(authorId) {
-      try {
-        const response = await axios.get("/api/author/" + authorId);
-        this.author = response.data;
-      } catch (error) {
-        this.error = "Failed to fetch author data";
-        console.error(error);
-      }
+    iconClassObject(iconName) {
+      return "fas fa-lg fa-" + iconName;
     },
   },
 };
@@ -325,6 +260,7 @@ i {
   height: 90px;
   margin: 0;
   justify-content: space-between;
+  margin-bottom: 20px;
 
   @media (max-width: 768px) {
     width: 100%;
@@ -332,6 +268,8 @@ i {
     flex-direction: column;
     padding: 0px;
     margin: 0;
+    margin-bottom: 20px;
+
   }
 
 
@@ -342,7 +280,23 @@ i {
 
   .article-title {
     font-size: 20px;
-    margin-bottom: 10px;
+    margin-bottom: 2px;
+
+    @media (max-width: 768px) {
+      margin-right: 20px;
+      flex-wrap: wrap;
+
+    }
+  }
+
+  .article-description {
+    font-size: 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    max-height: 2.2em;
+    line-height: 1.2em;
+    width: 70%;
 
     @media (max-width: 768px) {
       margin-right: 20px;
@@ -362,6 +316,7 @@ i {
     align-self: center;
     margin-right: 20px;
     margin-left: 20px;
+
   }
 
   .article-right-icon {
